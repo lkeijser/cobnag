@@ -11,7 +11,7 @@ Source0:        cobnag-1.0.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
-Requires:      python python-configobj 
+Requires:      python python-configobj nagios
 
 %description
 Cobnag can generate Nagios configuration files for a system by 
