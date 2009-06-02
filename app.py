@@ -117,7 +117,7 @@ class CobNag:
 
         if not os.path.exists(customer_dir):
             print "Customer directory didn't exist, making ..."
-            os.mkdir(customer_dir)
+            os.makedirs(customer_dir)
 
         my_system = remote.get_system(self.system_name)
 
