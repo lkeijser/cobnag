@@ -1,0 +1,30 @@
+Cobnag - Cobbler-maintained system's Nagios configuration file generator
+
+Copyright 2009 Léon Keijser <keijser@stone-it.com>
+
+
+Description:
+============
+Cobnag can generate Nagios configuration files for a system by
+making an XMLRPC connection to a Cobbler server, read what profile
+is attached to it and matches services (defined in a seperate
+configuration file) to it.
+
+
+Configuration:
+==============
+A sample set of service commands and profiles can be found in /etc/cobnag.conf
+
+
+Usage:
+======
+$ cobnag -y system_name -k customer_name
+
+Eg.:
+
+$ cobnag -y web01.example.com -k ExampleCorp
+
+Will generate:
+
+- /etc/nagios/objects/customers/ExampleCorp/web01.example.com.cfg
+- /etc/nagios/objects/customers/ExampleCorp/hostgroup.cfg
