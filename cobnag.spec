@@ -9,6 +9,7 @@ License:        GPL
 URL:            git://github.com/lkeijser/cobnag.git
 Source0:        cobnag-1.0.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch:      noarch
 
 Requires:      python python-configobj 
 
@@ -29,7 +30,8 @@ configuration file) to it.
 rm -rf $RPM_BUILD_ROOT
 install -D -p -m 0755 cobnag %{buildroot}/usr/bin/cobnag
 install -D -p -m 0644 cobnag.conf %{buildroot}/etc/cobnag.conf
-install -D -p -m 0644 app.py %{python_sitelib}/cobnag/app.py
+install -D -p -m 0644 app.py %{buildroot}/%{python_sitelib}/cobnag/app.py
+install -D -p -m 0644 __init__.py %{buildroot}/%{python_sitelib}/cobnag/__init__.py
 
 
 %clean
