@@ -36,8 +36,10 @@ from configobj import ConfigObj
 
 def main():
 
+    cobnag_ver = '1.0'
+
     # command line options
-    parser = OptionParser(usage="%prog -y <system_name> -k <customer_name>",version="%prog 0.0.1")
+    parser = OptionParser(usage="%prog -y <system_name> -k <customer_name>",version="%prog " + cobnag_ver)
     parser.add_option("-y", "--system", 
             action="store", 
             type="string", 
