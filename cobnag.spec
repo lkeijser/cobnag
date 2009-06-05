@@ -29,7 +29,7 @@ configuration file) to it.
 %install
 rm -rf $RPM_BUILD_ROOT
 install -D -p -m 0755 cobnag %{buildroot}/usr/bin/cobnag
-install -D -p -m 0644 cobnag.conf %{buildroot}/etc/cobnag.conf
+install -D -p -m 0644 cobnag.conf.sample %{buildroot}/etc/cobnag.conf.sample
 install -D -p -m 0644 app.py %{buildroot}/%{python_sitelib}/cobnag/app.py
 install -D -p -m 0644 __init__.py %{buildroot}/%{python_sitelib}/cobnag/__init__.py
 
@@ -49,5 +49,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jun 5 2009 Léon Keijser <keijser@stone-it.com> - 1.0.1-1
+- made source file variable version
+
 * Tue Jun 2 2009 Léon Keijser <keijser@stone-it.com> - 1.0-1
 - initial release
