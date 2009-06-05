@@ -1,3 +1,9 @@
+2009-06-05	Léon Keijser	<keijser@stone-it.com>
+
+	* Fix: default (non)critical services can now be empty
+	* Bumped to version 1.0.1
+
+
 2009-06-02	Léon Keijser	<keijser@stone-it.com>
 
 	* Initial release (1.0)
