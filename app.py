@@ -222,47 +222,49 @@ class CobNag:
 
         # Standard Critical services:
         for service in services_profile_critical['default']:
-            f.write("define service{\n")
-            f.write("\thost_name\t\t" + str(my_system['name']) + "\n")
-            serv_proc = re.compile('proc:')
-            serv_tcp = re.compile('tcp:')
-            serv_procargs = re.compile('procargs:')
-            if serv_proc.search(service):
-                f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
-            elif serv_tcp.search(service):
-                f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
-            elif serv_procargs.search(service):
-                f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
-            else:
-                f.write("\tservice_description\t" + str(service) + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
-            f.write("\tuse\t\t\tcritical-service\n")
-            f.write("\t}\n\n")
+            if not service is '':
+                f.write("define service{\n")
+                f.write("\thost_name\t\t" + str(my_system['name']) + "\n")
+                serv_proc = re.compile('proc:')
+                serv_tcp = re.compile('tcp:')
+                serv_procargs = re.compile('procargs:')
+                if serv_proc.search(service):
+                    f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
+                elif serv_tcp.search(service):
+                    f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
+                elif serv_procargs.search(service):
+                    f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
+                else:
+                    f.write("\tservice_description\t" + str(service) + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
+                f.write("\tuse\t\t\tcritical-service\n")
+                f.write("\t}\n\n")
 
         # Standard Noncritical services:
         for service in services_profile_noncritical['default']:
-            f.write("define service{\n")
-            f.write("\thost_name\t\t" + str(my_system['name']) + "\n")
-            serv_proc = re.compile('proc:')
-            serv_tcp = re.compile('tcp:')
-            serv_procargs = re.compile('procargs:')
-            if serv_proc.search(service):
-                f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
-            elif serv_tcp.search(service):
-                f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
-            elif serv_procargs.search(service):
-                f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
-            else:
-                f.write("\tservice_description\t" + str(service) + "\n")
-                f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
-            f.write("\tuse\t\t\tnoncritical-service\n")
-            f.write("\t}\n\n")
+            if not service is '':
+                f.write("define service{\n")
+                f.write("\thost_name\t\t" + str(my_system['name']) + "\n")
+                serv_proc = re.compile('proc:')
+                serv_tcp = re.compile('tcp:')
+                serv_procargs = re.compile('procargs:')
+                if serv_proc.search(service):
+                    f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
+                elif serv_tcp.search(service):
+                    f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
+                elif serv_procargs.search(service):
+                    f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
+                else:
+                    f.write("\tservice_description\t" + str(service) + "\n")
+                    f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
+                f.write("\tuse\t\t\tnoncritical-service\n")
+                f.write("\t}\n\n")
 
         # Define all found partitions
         for part in partitions:
