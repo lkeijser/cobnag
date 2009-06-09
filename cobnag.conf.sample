@@ -1,0 +1,48 @@
+[global]
+# Define Cobbler URI here:
+cobbler_uri = 'http://127.0.0.1/cobbler_api'
+
+[commands]
+# Define service commands here.
+# Syntax:   check_name = 'nagios_command'
+ssh = 'check_ssh'
+load = 'check_nrpe!check_load!15,10,5 30,25,20'
+ping = 'check_ping!100.0,20%!500.0,60%'
+users = 'check_nrpe!check_users!5 10'
+proc = 'check_nrpe!check_proc!1'
+procargs = 'check_nrpe!check_procargs!1'
+tcp = 'check_tcp!'
+smtp = 'check_smtp'
+http = 'check_http'
+yum = 'check_nrpe!check_yum'
+kernel = 'check_nrpe!check_kernel'
+dell_phydisk = 'check_nrpe!check_dell!phydisk'
+dell_power = 'check_nrpe!check_dell!power'
+dell_temp = 'check_nrpe!check_dell!temp'
+dell_virtdisk = 'check_nrpe!check_dell!virtdisk'
+
+[critical-services]
+# Define critical profile-related services here. Note that every
+# profile in cobbler needs to be defined, if only as empty ('').
+# Syntax:   profilename = 'checkname' or 
+#                         'proc:<name>' or 
+#                         'tcp:<port>' or 
+#                         'procargs:<args>'
+default = 'ssh','load','procargs:funcd','procargs:puppetd'
+firewall = ''
+openvpn = 'proc:openvpn'
+testvirtual = ''
+webserver = 'http'
+
+[noncritical-services]
+# Define non-critical profile-related services here. Note that
+# every profile in cobbler needs to be defined, if only as empty ('').
+# Syntax:   profilename = 'check_name' or 
+#                         'proc:<name>' or 
+#                         'tcp:<port>' or 
+#                         'procargs:<args>'
+default = 'ping','users'
+firewall = ''
+openvpn = ''
+testvirtual = ''
+webserver = ''
