@@ -49,7 +49,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Fru Jun 19 2009 Léon Keijser <keijser@stone-it.com> - 1.0.2-1
+* Fri Jun 19 2009 Léon Keijser <keijser@stone-it.com> - 1.0.2-1
 - changes from upstream
 
 * Fri Jun 5 2009 Léon Keijser <keijser@stone-it.com> - 1.0.1-1
