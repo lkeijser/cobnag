@@ -36,7 +36,7 @@ from configobj import ConfigObj
 
 def main():
 
-    cobnag_ver = '1.0.1'
+    cobnag_ver = '1.0.2'
 
     # command line options
     parser = OptionParser(usage="%prog -y <system_name> -k <customer_name>",version="%prog " + cobnag_ver)
@@ -183,13 +183,13 @@ class CobNag:
                     serv_procargs = re.compile('procargs:')
                     if serv_proc.search(service):
                         f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
-                        f.write("\tcheck_command\t\t" + checkcommand['proc:'] + ": " + str(service).split(':')[1] + "\n")
+                        f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
                     elif serv_tcp.search(service):
                         f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
-                        f.write("\tcheck_command\t\t" + checkcommand['tcp:'] +  str(service).split(':')[1] + "\n")
+                        f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
                     elif serv_procargs.search(service):
                         f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
-                        f.write("\tcheck_command\t\t" + checkcommand['procargs:'] + ": " + str(service).split(':')[1] + "\n")
+                        f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
                     else:
                         f.write("\tservice_description\t" + str(service) + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
@@ -205,20 +205,20 @@ class CobNag:
                     serv_procargs = re.compile('procargs:')
                     if serv_proc.search(service):
                         f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
-                        f.write("\tcheck_command\t\t" + checkcommand['proc:'] + ": " + str(service).split(':')[1] + "\n")
+                        f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
                     elif serv_tcp.search(service):
                         f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
-                        f.write("\tcheck_command\t\t" + checkcommand['tcp:'] +  str(service).split(':')[1] + "\n")
+                        f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
                     elif serv_procargs.search(service):
                         f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
-                        f.write("\tcheck_command\t\t" + checkcommand['procargs:'] + ": " + str(service).split(':')[1] + "\n")
+                        f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
                     else:
                         f.write("\tservice_description\t" + str(service) + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
                         f.write("\tuse\t\t\tnoncritical-service\n")
                         f.write("\t}\n\n")
         except KeyError:
-            print "Error: you didn't specify profile %s in cobnag" % my_system['profile']
+            print "Error: you didn't specify profile %s in cobnag.conf" % my_system['profile']
 
         # Standard Critical services:
         for service in services_profile_critical['default']:
