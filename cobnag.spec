@@ -42,13 +42,16 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %dir %{python_sitelib}/cobnag
 %{python_sitelib}/cobnag/*.py*
-/etc/cobnag.conf
+/etc/cobnag.conf.sample
 /usr/bin/cobnag
 %doc ChangeLog README COPYING
 
 
 
 %changelog
+* Fru Jun 19 2009 Léon Keijser <keijser@stone-it.com> - 1.0.2-1
+- changes from upstream
+
 * Fri Jun 5 2009 Léon Keijser <keijser@stone-it.com> - 1.0.1-1
 - made source file variable version
 
