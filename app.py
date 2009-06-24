@@ -50,6 +50,15 @@ def main():
             type="string", 
             dest="customer_name", 
             help="Customer name - One word, no funny business!")
+    parser.add_option("-f", "--force",
+            action="store",
+            type="string",
+            dest="force_profile",
+            help="Force cobnag to use this profile when generating the configuration")
+    parser.add_option("-n", "--nrpe",
+            action="store_true",
+            dest="nrpe_dependency",
+            help="Create a service dependency for each nrpe-controlled service")
 
     # parse cmd line options
     (options, args) = parser.parse_args()
@@ -57,6 +66,8 @@ def main():
     c = CobNag()
     c.system_name       = options.system_name
     c.customer_name     = options.customer_name
+    c.force_profile     = options.force_profile
+    c.nrpe_dependency   = options.nrpe_dependency
 
     # check for all args
     if options.system_name is None or options.customer_name is None:
@@ -70,8 +81,10 @@ class CobNag:
         """
         Constructor. Arguments will be filled in by optparse..
         """
-        self.system_name    = None
-        self.customer_name  = None
+        self.system_name        = None
+        self.customer_name      = None
+        self.force_profile      = None
+        self.nrpe_dependency    = None
 
 
     def run(self):
@@ -121,8 +134,11 @@ class CobNag:
 
         my_system = remote.get_system(self.system_name)
 
-        print "Now processing system " + self.system_name
+        if self.force_profile:
+            my_system['profile'] = self.force_profile
 
+        print "Now processing system %s using profile %s" % (my_system['name'],my_system['profile'])
+        
         try:
             kickstart = remote.generate_kickstart(my_system['profile'], my_system['name'])
         except KeyError:
@@ -171,6 +187,15 @@ class CobNag:
         f.write("\taddress\t\t" + str(my_system['interfaces']['eth0']['ip_address']) + "\n")
         f.write("\t}\n\n")
 
+        # Define NRPE check service if service dependencies are used
+        if self.nrpe_dependency:
+            f.write("define service{\n")
+            f.write("\thost_name\t\t" + str(my_system['name']) + "\n")
+            f.write("\tservice_description\tCheck NRPE\n")
+            f.write("\tcheck_command\t\tcheck_tcp!5666\n")
+            f.write("\tuse\t\t\tcritical-service\n")
+            f.write("\t}\n\n")
+
         # Define all services
         try:
             # Profile-related Critical services:
@@ -184,17 +209,36 @@ class CobNag:
                     if serv_proc.search(service):
                         f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
+                        srv_desc="Process " + str(service).split(':')[1]
+                        nrpecmd=checkcommand['proc']
                     elif serv_tcp.search(service):
                         f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
+                        srv_desc="TCP port " + str(service).split(':')[1]
+                        nrpecmd=checkcommand['tcp']
                     elif serv_procargs.search(service):
                         f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
+                        srv_desc="Process with argument " + str(service).split(':')[1]
+                        nrpecmd=checkcommand['procargs']
                     else:
                         f.write("\tservice_description\t" + str(service) + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
+                        srv_desc=checkcommand[str(service)]
+                        nrpecmd=checkcommand[str(service)]
                     f.write("\tuse\t\t\tcritical-service\n")
                     f.write("\t}\n\n")
+                    # Define service dependency if this is specified
+                    if self.nrpe_dependency:
+                        if nrpecmd.split('!')[0] == 'check_nrpe':
+                            f.write("define servicedependency{\n")
+                            f.write("\thost_name\t\t\t" + str(my_system['name']) + "\n")
+                            f.write("\tservice_description\t\tCheck NRPE\n")
+                            f.write("\tdependent_service_description\t" + srv_desc + "\n")
+                            f.write("\texecution_failure_criteria\to\n")
+                            f.write("\tnotification_failure_criteria\tw,u,c\n")
+                            f.write("\t}\n\n")
+
             # Profile-related Noncritical services:
             for service in services_profile_noncritical[str(my_system['profile'])]:
                 if not service is '':
@@ -206,17 +250,36 @@ class CobNag:
                     if serv_proc.search(service):
                         f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
+                        srv_desc="Process " + str(service).split(':')[1]
+                        nrpecmd=checkcommand['proc']
                     elif serv_tcp.search(service):
                         f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
+                        srv_desc="TCP port " + str(service).split(':')[1]
+                        nrpecmd=checkcommand['tcp']
                     elif serv_procargs.search(service):
                         f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
+                        srv_desc="Process with argument " + str(service).split(':')[1]
+                        nrpecmd=checkcommand['procargs']
                     else:
                         f.write("\tservice_description\t" + str(service) + "\n")
                         f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
-                        f.write("\tuse\t\t\tnoncritical-service\n")
-                        f.write("\t}\n\n")
+                        srv_desc=str(service)
+                        nrpecmd=checkcommand[str(service)]
+                    f.write("\tuse\t\t\tnoncritical-service\n")
+                    f.write("\t}\n\n")
+                    # Define service dependency if this is specified
+                    if self.nrpe_dependency:
+                        if nrpecmd.split('!')[0] == 'check_nrpe':
+                            f.write("define servicedependency{\n")
+                            f.write("\thost_name\t\t\t" + str(my_system['name']) + "\n")
+                            f.write("\tservice_description\t\tCheck NRPE\n")
+                            f.write("\tdependent_service_description\t" + srv_desc + "\n")
+                            f.write("\texecution_failure_criteria\to\n")
+                            f.write("\tnotification_failure_criteria\tw,u,c\n")
+                            f.write("\t}\n\n")
+
         except KeyError:
             print "Error: you didn't specify profile %s in cobnag.conf" % my_system['profile']
 
@@ -231,17 +294,35 @@ class CobNag:
                 if serv_proc.search(service):
                     f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
+                    srv_desc="Process " + str(service).split(':')[1]
+                    nrpecmd=checkcommand['proc']
                 elif serv_tcp.search(service):
                     f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
+                    srv_desc="TCP port " + str(service).split(':')[1]
+                    nrpecmd=checkcommand['tcp']
                 elif serv_procargs.search(service):
                     f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
+                    srv_desc="Process with argument " + str(service).split(':')[1]
+                    nrpecmd=checkcommand['procargs']
                 else:
                     f.write("\tservice_description\t" + str(service) + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
+                    srv_desc=str(service)
+                    nrpecmd=checkcommand[str(service)]
                 f.write("\tuse\t\t\tcritical-service\n")
                 f.write("\t}\n\n")
+                # Define service dependency if this is specified
+                if self.nrpe_dependency:
+                    if nrpecmd.split('!')[0] == 'check_nrpe':
+                        f.write("define servicedependency{\n")
+                        f.write("\thost_name\t\t\t" + str(my_system['name']) + "\n")
+                        f.write("\tservice_description\t\tCheck NRPE\n")
+                        f.write("\tdependent_service_description\t" + srv_desc + "\n")
+                        f.write("\texecution_failure_criteria\to\n")
+                        f.write("\tnotification_failure_criteria\tw,u,c\n")
+                        f.write("\t}\n\n")
 
         # Standard Noncritical services:
         for service in services_profile_noncritical['default']:
@@ -254,17 +335,35 @@ class CobNag:
                 if serv_proc.search(service):
                     f.write("\tservice_description\tProcess " + str(service).split(':')[1] + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand['proc'] + ": " + str(service).split(':')[1] + "\n")
+                    srv_desc="Process " + str(service).split(':')[1]
+                    nrpecmd=checkcommand['proc']
                 elif serv_tcp.search(service):
                     f.write("\tservice_description\tTCP port " + str(service).split(':')[1] + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand['tcp'] +  str(service).split(':')[1] + "\n")
+                    srv_desc="TCP port " + str(service).split(':')[1]
+                    nrpecmd=checkcommand['tcp']
                 elif serv_procargs.search(service):
                     f.write("\tservice_description\tProcess with argument " + str(service).split(':')[1] + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand['procargs'] + ": " + str(service).split(':')[1] + "\n")
+                    srv_desc="Process with argument " + str(service).split(':')[1]
+                    nrpecmd=checkcommand['procargs']
                 else:
                     f.write("\tservice_description\t" + str(service) + "\n")
                     f.write("\tcheck_command\t\t" + checkcommand[str(service)] + "\n")
+                    srv_desc=str(service)
+                    nrpecmd=checkcommand[str(service)]
                 f.write("\tuse\t\t\tnoncritical-service\n")
                 f.write("\t}\n\n")
+                # Define service dependency if this is specified
+                if self.nrpe_dependency:
+                    if nrpecmd.split('!')[0] == 'check_nrpe':
+                        f.write("define servicedependency{\n")
+                        f.write("\thost_name\t\t\t" + str(my_system['name']) + "\n")
+                        f.write("\tservice_description\t\tCheck NRPE\n")
+                        f.write("\tdependent_service_description\t" + srv_desc + "\n")
+                        f.write("\texecution_failure_criteria\to\n")
+                        f.write("\tnotification_failure_criteria\tw,u,c\n")
+                        f.write("\t}\n\n")
 
         # Define all found partitions
         for part in partitions:
@@ -277,6 +376,15 @@ class CobNag:
                 f.write("\tcheck_command\t\tcheck_nrpe!check_disk!10% 5% " + str(part) + "\n")
             f.write("\tuse\t\t\tcritical-service\n")
             f.write("\t}\n\n")
+            # Define service dependency for each partition
+            if self.nrpe_dependency:
+                f.write("define servicedependency{\n")
+                f.write("\thost_name\t\t\t" + str(my_system['name']) + "\n")
+                f.write("\tservice_description\t\tCheck NRPE\n")
+                f.write("\tdependent_service_description\tPartition " + str(part) + "\n")
+                f.write("\texecution_failure_criteria\to\n")
+                f.write("\tnotification_failure_criteria\tw,u,c\n")
+                f.write("\t}\n\n")
 
         f.close()
 
