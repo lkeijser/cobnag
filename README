@@ -13,7 +13,7 @@ configuration file) to it.
 
 Configuration:
 ==============
-A sample set of service commands and profiles can be found in /etc/cobnag.conf
+A sample set of service commands and profiles can be found in /etc/cobnag.conf.sample
 
 
 Usage:
