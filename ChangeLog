@@ -1,3 +1,8 @@
+2009-06-24	Léon Keijser	<keijser@stone-it.com>
+
+	* Add: option to force cobnag to use specific profile
+	* Add: option to create servicedependency for NRPE checks
+
 2009-06-05	Léon Keijser	<keijser@stone-it.com>
 
 	* Fix: default (non)critical services can now be empty
