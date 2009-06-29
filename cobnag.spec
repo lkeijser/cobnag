@@ -1,6 +1,6 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:           cobnag
-Version:        1.1.0
+Version:        1.1.1
 Release:        1%{?dist}
 Summary:        Generate Nagios configuration files based on a Cobbler profile
 
@@ -42,7 +42,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %dir %{python_sitelib}/cobnag
 %{python_sitelib}/cobnag/*.py*
-/etc/cobnag.conf.sample
+%config /etc/cobnag.conf.sample
 /usr/bin/cobnag
 %doc ChangeLog README COPYING
 
